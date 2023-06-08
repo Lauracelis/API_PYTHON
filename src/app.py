@@ -10,17 +10,19 @@ conexion = MySQL(app)
 @app.route('/clients', methods=['GET'])
 def list():
     try:
+        # conexión con la base de datos
         cursor=conexion.connection.cursor()
         sql= "SELECT id, name,adress, cellphone FROM client"
         # ejecutar la consulta
         cursor.execute(sql)
         # Convertir la repuesta en algo entendible para python
-        datos=cursor.fetchall()
+        datos=cursor.fetchall()###obtener todos los registros
         clientes=[]
+        #bucle que itera sobre cada variable
         for fila in datos:
-            cliente={'id':fila[0], 'name':fila[1], 'adress':fila[2], 'cellphone':fila[3] }
-            clientes.append(cliente)
-        return jsonify({'clientes': clientes, 'mensaje':"lista de clientes"})
+            cliente={'id':fila[0], 'name':fila[1], 'adress':fila[2], 'cellphone':fila[3] } #diccionario, los valores de cada clave se asignan alas varriables
+            clientes.append(cliente) #Agrega al diccionario cada iteración del bucle
+        return jsonify({'clientes': clientes, 'mensaje':"lista de clientes"}) #devolver la info en un json
     except Exception as ex:    
       return jsonify({ 'mensaje':"lista de clientes"})
 
@@ -28,12 +30,12 @@ def list():
 def client(name):
     try:
         cursor=conexion.connection.cursor()
-        sql= "SELECT id, name,adress, cellphone FROM client Where name = '{0}'".format(name)
+        sql= "SELECT id, name,adress, cellphone FROM client Where name = '{0}'".format(name) #selecciona los campos de la tabla, el valor coincide coon la variable/ FORMAT:insertar la cadena
         cursor.execute(sql)
-        datos=cursor.fetchone()
-        if datos != None:
-             cliente={'id':datos[0], 'name':datos[1], 'adress':datos[2], 'cellphone':datos[3] } 
-             return jsonify({'cliente': cliente, 'mensaje':"Cliente encontrado"})
+        datos=cursor.fetchone() #solo devuelve una
+        if datos != None: #verifica que la variable contiene algún valor
+             cliente={'id':datos[0], 'name':datos[1], 'adress':datos[2], 'cellphone':datos[3] } #se crea el diccionario
+             return jsonify({'cliente': cliente, 'mensaje':"Cliente encontrado"}) #muestra la info
         else:
             return jsonify({ 'mensaje':"Cliente NO encontrado"})
               
@@ -46,9 +48,10 @@ def new_client():
         ###Traer el objeto de la petición
         # print(request.json)
         cursor=conexion.connection.cursor()
+        #{}cadena de formatos / request: contiene los datos enviados en la solicitud / request.json: accede al valor del campo del oobjeto del json de la soli 
         sql="""INSERT INTO client (id, name, adress, cellphone) VALUES ('{0}', '{1}', '{2}', '{3}')""".format(request.json['id'], request.json['name'], request.json['adress'], request.json['cellphone' ])
         cursor.execute(sql)
-        conexion.connection.commit() ###onfirma la acción de insercción
+        conexion.connection.commit() #confirma la acción de insercción
         return jsonify({ 'mensaje':"cliente registrad"})  
         
     except Exception as ex:
